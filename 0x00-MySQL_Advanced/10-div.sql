@@ -8,6 +8,8 @@
 --      b, INT
 --      And returns a / b or 0 if b == 0
 
+DROP FUNCTION IF EXISTS SafeDiv;
+
 DELIMITER $$
 CREATE FUNCTION SafeDiv (a INT, b INT) RETURNS FLOAT
 DETERMINISTIC

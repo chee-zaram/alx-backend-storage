@@ -11,6 +11,7 @@ CREATE PROCEDURE AddBonus(
     IN project_name VARCHAR(255),
     IN score INT
 )
+COMMENT 'This procedure adds a new correction for a student with user_id'
 BEGIN
     DECLARE project_id INT;
 

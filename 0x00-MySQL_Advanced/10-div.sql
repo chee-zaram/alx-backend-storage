@@ -11,6 +11,7 @@
 DELIMITER $$
 CREATE FUNCTION SafeDiv (a INT, b INT) RETURNS FLOAT
 DETERMINISTIC
+COMMENT 'Returns a / b or 0 if b == 0'
 BEGIN
     IF b = 0 THEN
         RETURN 0;

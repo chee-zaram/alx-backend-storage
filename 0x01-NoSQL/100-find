@@ -1,0 +1,4 @@
+// This is a mongodb 4.2 script that lists all documents with `name` starting with
+// `Holberton`, in the collection `school`.
+// The database name will be passed as argument to the mongo shell.
+db.school.find({ name: /^Holberton.*/ })

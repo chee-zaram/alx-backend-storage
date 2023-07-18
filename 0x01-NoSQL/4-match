@@ -1,0 +1,3 @@
+// This is a MongoDB script that lists all documents in the collection `school`
+// with name="Holberton school". The database will be passed as an argument.
+db.school.find({ name: "Holberton school" });

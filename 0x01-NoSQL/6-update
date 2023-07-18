@@ -1,0 +1,10 @@
+// This is a MongoDB 4.2 script that adds a new attribute to a document in the
+// collection `school`.
+// The script only updates documents with `name="Holberton school"`.
+// The script adds the attribute `address="972 Mission street"`.
+// The name of the database will be passed as a command line argument to mongo.
+db.school.update(
+    { name: "Holberton school" },
+    { $set: { address: "972 Mission street" }},
+    { multi : true }
+);

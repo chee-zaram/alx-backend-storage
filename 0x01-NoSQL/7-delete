@@ -1,4 +1,4 @@
 // This mongo 4.2 script deletes all documents in the collection `school` with
 // `name="Holberton school"`.
 // The database name will be passed as command-line argument to mongo.
-db.school.remove({ name: "Holberton school" }, { multi: true });
+db.school.deleteMany({ name: "Holberton school" });

@@ -4,6 +4,22 @@
 import redis
 from typing import Union, Callable, Optional
 from uuid import uuid4
+from functools import wraps
+
+
+def count_calls(method: Callable) -> Callable:
+    """
+    This is a function that returns a wrapper which increments a counter
+    for a given key.
+    The key is gotten from the qualified name of the `method` argument.
+    The wrapper returns the original return value of the `redis.get` method.
+    """
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        key = method.__qualname__
+        self._redis.incr(key)
+        return self._redis.get(key)
+    return wrapper
 
 
 class Cache:
@@ -19,6 +35,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         store generates a new key and stores `data` in redis using the key.

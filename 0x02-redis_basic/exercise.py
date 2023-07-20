@@ -1,10 +1,42 @@
 #!/usr/bin/env python3
-"""This module contains the class `Cache`.
+"""This module contains the class `Cache`, and some related helper functions.
 """
 import redis
 from typing import Union, Callable, Optional, Any
 from uuid import uuid4
 from functools import wraps
+
+
+def replay(fn: Callable) -> None:
+    """
+    replay displays the input and output history of `fn`, gotten from the
+    redis cache.
+    """
+    if not isinstance(fn, Callable) or not hasattr(fn, "__self__"):
+        return
+    cache = getattr(fn.__self__, "_redis", None)
+    if not isinstance(cache, redis.Redis):
+        return
+
+    call_count = cache.get(fn.__qualname__)
+    if call_count is None:
+        return
+    try:
+        call_count = int(call_count)
+    except ValueError:
+        return
+
+    count_msg = "{} was called {} times:".format(fn.__qualname__, call_count)
+    inputs_key = "{}:inputs".format(fn.__qualname__)
+    input_history = cache.lrange(inputs_key, 0, -1)
+    outputs_key = "{}:outputs".format(fn.__qualname__)
+    output_history = cache.lrange(outputs_key, 0, -1)
+
+    print(count_msg)
+    for input, output in zip(input_history, output_history):
+        input = input.decode("utf-8") if input is not None else input
+        output = output.decode("utf-8") if output is not None else output
+        print("{}(*{}) -> {}".format(fn.__qualname__, input, output))
 
 
 def call_history(method: Callable) -> Callable:

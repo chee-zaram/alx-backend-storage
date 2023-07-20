@@ -2,7 +2,7 @@
 """This module contains the class `Cache`.
 """
 import redis
-from typing import Union, Callable, Optional
+from typing import Union, Callable, Optional, Any
 from uuid import uuid4
 from functools import wraps
 
@@ -15,10 +15,12 @@ def count_calls(method: Callable) -> Callable:
     The wrapper returns the original return value of the `redis.get` method.
     """
     @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        key = method.__qualname__
-        self._redis.incr(key)
-        return self._redis.get(key)
+    def wrapper(self, *args, **kwargs) -> Any:
+        """wrapper calls the `method` after it increments the redis counter.
+        """
+        if isinstance(self._redis, redis.Redis):
+            self._redis.incr(method.__qualname__)
+        return method(self, *args, **kwargs)
     return wrapper
 
 

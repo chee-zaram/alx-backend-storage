@@ -7,6 +7,32 @@ from uuid import uuid4
 from functools import wraps
 
 
+def call_history(method: Callable) -> Callable:
+    """
+    call_history defines a wrapper function that stores the call input and
+    output of a decorated function or method.
+    """
+    input_history = "{}:inputs".format(method.__qualname__)
+    output_history = "{}:outputs".format(method.__qualname__)
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs) -> Any:
+        """
+        wrapper stores the input and output history of the function which it
+        wraps. It does this using redis.
+        """
+        reval = method(self, *args, **kwargs)
+        if not isinstance(self._redis, redis.Redis):
+            return reval
+
+        self._redis.rpush(input_history, str(args))
+        self._redis.rpush(output_history, reval)
+
+        return reval
+
+    return wrapper
+
+
 def count_calls(method: Callable) -> Callable:
     """
     This is a function that returns a wrapper which increments a counter
@@ -37,6 +63,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
